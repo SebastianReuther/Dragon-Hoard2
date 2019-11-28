@@ -10,10 +10,20 @@ public class TileModel : MonoBehaviour {
     [SerializeField]private Sprite[] _tileSprite;
     [SerializeField]private TileChecker _tileChecker;
 
+    public int _tileBoardXPosition;
+    public int _tileBoardYPosition;
+    public bool _isPrincessTile = false;
+
+    public bool _isStairTile = false;
+    
+
     public void SetupTile(int _width, int _height)
     { 
 
         _tilePosition = new Vector2(_width, _height);
+
+        _tileBoardXPosition = _width;
+        _tileBoardYPosition = _height;
 
         if (_width == 0 && _height == 0)
         {
@@ -51,9 +61,37 @@ public class TileModel : MonoBehaviour {
         
     }
 
+    public void DisableRenderer()
+    {
+        gameObject.GetComponent<Renderer>().enabled = false;
+        _tileHighlighted = false;
+    }
+
     public TileTypes ReturnTile()
     {
         return _tileType;
+    }
+
+    public void BecomePrincessTile(bool _isRightTile)
+    {   
+        if (_isRightTile)
+        {
+            AssignType((int)TileTypes.PrincessTileRight);
+        }
+        else
+        {
+            AssignType((int)TileTypes.PrincessTileLeft);
+        }
+        
+        EnableRenderer();
+        _isPrincessTile = true;
+    }
+
+    public void BecomeStairTile()
+    {
+        AssignType((int)TileTypes.Stair);
+        EnableRenderer();
+        _isStairTile = true;
     }
 
 

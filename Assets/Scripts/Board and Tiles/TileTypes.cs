@@ -8,5 +8,8 @@
     Normal2Up,
     Normal1UpRight,
     Normal1UpLeft,
-    Normal1RightLeft
+    Normal1RightLeft,
+    PrincessTileLeft,
+    PrincessTileRight,
+    Stair
 }

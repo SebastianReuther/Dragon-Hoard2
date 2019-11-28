@@ -13,6 +13,8 @@ public class TileChecker : MonoBehaviour {
             case TileTypes.Normal2Left: return (true);
             case TileTypes.Normal2Up: return (true);
             case TileTypes.Normal1UpLeft: return (true);
+            case TileTypes.PrincessTileLeft: return (true);
+            case TileTypes.PrincessTileRight: return (true);
             default: return (false);
         }
 
@@ -25,6 +27,8 @@ public class TileChecker : MonoBehaviour {
             case TileTypes.Normal2Right: return (true);
             case TileTypes.Normal2Up: return (true);
             case TileTypes.Normal1UpRight: return (true);
+            case TileTypes.PrincessTileLeft: return (true);
+            case TileTypes.PrincessTileRight: return (true);
             default: return (false);
         }
 
@@ -38,6 +42,8 @@ public class TileChecker : MonoBehaviour {
             case TileTypes.Normal2Left: return (true);
             case TileTypes.Normal2Right: return (true);
             case TileTypes.Normal1RightLeft: return (true);
+            case TileTypes.PrincessTileLeft: return (true);
+            case TileTypes.PrincessTileRight: return (true);
             default: return (false);
         }
 

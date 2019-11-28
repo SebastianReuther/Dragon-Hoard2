@@ -6,6 +6,9 @@ public class PlayerMovement : MonoBehaviour {
 
     public int _playerX;
     public int _playerY;
+    private int _previousPlayerX;
+    private int _previousPlayerY;
+
     public Vector2 _playerPosition;
     private Vector2 _previousPlayerPosition;
 
@@ -18,6 +21,9 @@ public class PlayerMovement : MonoBehaviour {
 
     [SerializeField] private TileChecker _tileChecker;
     [SerializeField] private Board _board;
+    [SerializeField] private PrincessModel _princessModel;
+
+    public bool _collectedPrincess = false;
 
     public void Start()
     {
@@ -27,32 +33,10 @@ public class PlayerMovement : MonoBehaviour {
         CheckMovementOptions();
     }
 
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.W) && _canMoveUp == true)
-        {
-            _playerY += 1;
-            MovePlayer(_playerX, _playerY);
-        }
-        else if (Input.GetKeyDown(KeyCode.A) && _canMoveLeft == true)
-        {
-            _playerX -= 1;
-            MovePlayer(_playerX, _playerY);
-        }
-        else if (Input.GetKeyDown(KeyCode.S) && _canMoveDown == true)
-        {
-            _playerY -= 1;
-            MovePlayer(_playerX, _playerY);
-        }
-        else if (Input.GetKeyDown(KeyCode.D) && _canMoveRight == true)
-        {
-            _playerX += 1;
-            MovePlayer(_playerX, _playerY);
-        }
-    }
-
     private void CheckMovementOptions()
     {
+        //RemoveWalkableTiles();
+
         _playerPositionTileType = _board.ReturnTileOnPosition(_playerY,_playerX);
         _canMoveUp =_tileChecker.CanMoveUp(_playerPositionTileType);
         _canMoveRight = _tileChecker.CanMoveRight(_playerPositionTileType);
@@ -63,32 +47,79 @@ public class PlayerMovement : MonoBehaviour {
 
         Debug.Log(" X: " + _playerX + " Y: " + _playerY +" Tile: " + _playerPositionTileType + " Can Move Up: " + _canMoveUp + " Can Move Right: " + _canMoveRight + " Can Move Left: " + _canMoveLeft + " Can Move Down: " + _canMoveDown);
         HighlightWalkableTiles();
-    }
-
-    public void MovePlayer(int newPositionX, int newPositionY)
-    {
-        CheckMovementOptions();
-        if (_board.ReturnPositionOfTile(newPositionY, newPositionX) != null)
+        if (_collectedPrincess == false)
         {
-            transform.position = _board.ReturnPositionOfTile(newPositionY, newPositionX).transform.position;
+            CheckForPrincessTile();
         }
-        Debug.Log(_board.ReturnPositionOfTile(newPositionY, newPositionX));
-        HighlightWalkableTiles();
     }
 
+    public void MovePlayer(Vector3 positionOfTile, int _tileX, int _tileY)
+    {
+        Debug.LogWarning("plazer pos of tile: " + positionOfTile);
+        CheckMovementOptions();
+
+        if (_collectedPrincess == true)
+        {
+            _princessModel.MovePrincess(transform.position);
+        }
+
+        transform.position = positionOfTile;
+     //   UpdateOldPosition(_playerX, _playerY);
+        _playerX = _tileY;
+        _playerY = _tileX;
+        Debug.Log("X " +_playerX + " und Y: " + _playerY);
+
+
+        CheckMovementOptions();
+    }
+
+    private void UpdateOldPosition(int _pX, int _pY)
+    {
+        _previousPlayerX = _pX;
+        _previousPlayerY = _pY;
+    }
+
+    public void CheckForPrincessTile()
+    {
+        //if can move up true, if y+ returns princess tile
+        //same for other directions
+        if (_canMoveUp == true && _board.IsPrincessTile(_playerY + 1, _playerX))
+        {
+            // move up
+            _collectedPrincess = true;
+            MovePlayer(_board.ReturnPrincessTile(_playerY + 1, _playerX).transform.position, _playerY +1, _playerX);
+        }
+        if (_canMoveDown == true && _board.IsPrincessTile(_playerY - 1, _playerX))
+        {
+            // move down
+            _collectedPrincess = true;
+            MovePlayer(_board.ReturnPrincessTile(_playerY - 1, _playerX).transform.position, _playerY -1, _playerX);
+        }
+        if (_canMoveLeft == true && _board.IsPrincessTile(_playerY, _playerX - 1))
+        {
+            // move left
+            _collectedPrincess = true;
+            MovePlayer(_board.ReturnPrincessTile(_playerY, _playerX - 1).transform.position, _playerY, _playerX -1);
+        }
+        if (_canMoveRight == true && _board.IsPrincessTile(_playerY, _playerX + 1))
+        {
+            // move left
+            _collectedPrincess = true;
+            MovePlayer(_board.ReturnPrincessTile(_playerY, _playerX + 1).transform.position, _playerY, _playerX +1);
+        }
+
+        if (_collectedPrincess == true)
+        {
+            _board.FindStairRoom();
+        }
+
+        Debug.Log("CollectedPrincess: " + _collectedPrincess);
+    }
    
     private void CalculateTileRotation()
     {
     }
 
-    private void WalkabelTiles()
-    {
-        if (_canMoveRight == true)
-        {
-
-        }
-
-    }
 
     private void HighlightWalkableTiles()
     {
@@ -109,4 +140,5 @@ public class PlayerMovement : MonoBehaviour {
             _board.WalkableTile(_playerY, _playerX - 1);
         }
     }
+
 }

@@ -9,11 +9,15 @@ public class TileDragNDrop : MonoBehaviour
     private GameObject _otherTile;
 
     List<GameObject> _draggedOnTileList;
+
     private GameObject[] _gameTiles;
     private TileModel[] _tiles;
     private GameObject _closestDraggedOnTile;
+
     private float _closestDraggedOnTileDistance = 0;
     private float _closestDraggedOnTileMinDistance = 9999999999;
+    private Vector3 _startDragPosition;
+    private bool _bringBackToDragPosition;
 
     [SerializeField] private PlayerMovement _playerMovement;
 
@@ -22,6 +26,7 @@ public class TileDragNDrop : MonoBehaviour
         _handTile = GetComponent<HandTile>();
         _gameTiles = GameObject.FindGameObjectsWithTag("BoardTile");
         _tiles = FindObjectsOfType<TileModel>();
+        _bringBackToDragPosition = true;
     }
 
     private void Update()
@@ -29,18 +34,27 @@ public class TileDragNDrop : MonoBehaviour
         
     }
 
+    private void OnMouseDown()
+    {
+        _startDragPosition = transform.position;
+    }
+
     void OnMouseDrag()
     {
         Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         transform.position = mousePos;
         _handTile._isBeingDragged = true;
-        //start position speichern
+        
     }
 
     private void OnMouseUp()
     {
         _handTile._isBeingDragged = false;
-        //zurück zu start positionen
+        if (_bringBackToDragPosition == true)
+        {
+            Debug.Log("DropBack");
+          //  transform.position = _startDragPosition;
+        }
     }
 
 
@@ -51,25 +65,32 @@ public class TileDragNDrop : MonoBehaviour
             return;
         }
 
-
         Debug.Log("collided");
-        Debug.Log(_handTile._isBeingDragged);
         _otherTile = other.gameObject;
+       
 
-        if (_handTile._isBeingDragged == false)
+        _bringBackToDragPosition = false;
+
+        if (_otherTile.GetComponent<TileModel>()._tileType == TileTypes.None && _otherTile.GetComponent<TileModel>()._tileHighlighted == true && _otherTile == FindClosestTile())
         {
-            Debug.Log(_otherTile);
-           
-            if (_otherTile.GetComponent<TileModel>()._tileType == TileTypes.None && _otherTile.GetComponent<TileModel>()._tileHighlighted == true)
+            Debug.Log(_bringBackToDragPosition);
+            if (_handTile._isBeingDragged == false)
             {
                 Debug.Log("Dropped");
-                if (_otherTile == FindClosestTile())
-                {
-                    Debug.Log("Tilefound");
-                    FindClosestTile().GetComponent<TileModel>().AssignType((int)_handTile._tileType);
-                    Destroy(gameObject);
-                }
+                Debug.Log("Tilefound");
+                
+                FindClosestTile().GetComponent<TileModel>().AssignType((int)_handTile._tileType);
+                Debug.Log(_otherTile);
+                Debug.Log("collision pos of tile: " + _otherTile.transform.position);
+                _playerMovement.MovePlayer(_otherTile.transform.position, _otherTile.GetComponent<TileModel>()._tileBoardXPosition, _otherTile.GetComponent<TileModel>()._tileBoardYPosition);
+                Destroy(gameObject);
+
             }
+
+        }
+        else
+        {
+         //   _bringBackToDragPosition = true;
         }
     }
 
